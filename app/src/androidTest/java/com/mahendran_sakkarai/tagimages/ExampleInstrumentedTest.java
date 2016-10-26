@@ -1,4 +1,4 @@
-package mahendran_sakkarai.com.tagimages;
+package com.mahendran_sakkarai.tagimages;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("mahendran_sakkarai.com.tagimages", appContext.getPackageName());
+        assertEquals("com.mahendran_sakkarai.tagimages", appContext.getPackageName());
     }
 }

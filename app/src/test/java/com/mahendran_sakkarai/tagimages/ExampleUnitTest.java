@@ -1,4 +1,4 @@
-package mahendran_sakkarai.com.tagimages;
+package com.mahendran_sakkarai.tagimages;
 
 import org.junit.Test;
 

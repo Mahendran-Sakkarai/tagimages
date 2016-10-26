@@ -4,7 +4,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
     defaultConfig {
-        applicationId "mahendran_sakkarai.com.tagimages"
+        applicationId "com.mahendran_sakkarai.tagimages"
         minSdkVersion 14
         targetSdkVersion 25
         versionCode 1
