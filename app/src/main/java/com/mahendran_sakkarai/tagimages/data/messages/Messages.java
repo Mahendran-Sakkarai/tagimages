@@ -1,12 +1,13 @@
-package com.mahendran_sakkarai.tagimages.data;
+package com.mahendran_sakkarai.tagimages.data.messages;
 
 /**
  * Created by Mahendran Sakkarai on 10/28/2016.
  */
 
-public class Messages<T> {
+public class Messages {
     private int id;
-    private T message;
+    private String type;
+    private String message;
     private String by;
     private int sentTime;
 
@@ -18,11 +19,19 @@ public class Messages<T> {
         this.id = id;
     }
 
-    public T getMessage() {
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getMessage() {
         return message;
     }
 
-    public void setMessage(T message) {
+    public void setMessage(String message) {
         this.message = message;
     }
 
