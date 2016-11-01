@@ -1,6 +1,4 @@
-package com.mahendran_sakkarai.tagimages.data.tags;
-
-import com.mahendran_sakkarai.tagimages.data.images.Images;
+package com.mahendran_sakkarai.tagimages.data.models;
 
 import java.util.ArrayList;
 import java.util.List;

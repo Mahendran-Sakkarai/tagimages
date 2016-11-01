@@ -1,4 +1,4 @@
-package com.mahendran_sakkarai.tagimages.data.images;
+package com.mahendran_sakkarai.tagimages.data.models;
 
 /**
  * Created by Mahendran Sakkarai on 10/28/2016.

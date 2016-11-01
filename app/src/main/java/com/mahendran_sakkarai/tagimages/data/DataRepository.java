@@ -1,45 +1,73 @@
-package com.mahendran_sakkarai.tagimages.data.tags.local;
+package com.mahendran_sakkarai.tagimages.data;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.mahendran_sakkarai.tagimages.data.models.Images;
+import com.mahendran_sakkarai.tagimages.data.models.Messages;
+import com.mahendran_sakkarai.tagimages.data.models.Tags;
+
 import static com.mahendran_sakkarai.tagimages.data.DataContract.*;
-import com.mahendran_sakkarai.tagimages.data.DataHelper;
-import com.mahendran_sakkarai.tagimages.data.images.Images;
-import com.mahendran_sakkarai.tagimages.data.images.ImagesDataSource;
-import com.mahendran_sakkarai.tagimages.data.tags.Tags;
-import com.mahendran_sakkarai.tagimages.data.tags.TagsDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Mahendran Sakkarai on 10/28/2016.
+ * Created by Mahendran Sakkarai on 11/2/2016.
  */
 
-public class TagsRepository implements TagsDataSource {
-    private static TagsRepository INSTANCE;
+public class DataRepository implements DataSource {
+    private static DataRepository INSTANCE;
     private final DataHelper mDbHelper;
 
-    private TagsRepository(Context context) {
+    private DataRepository(Context context) {
         this.mDbHelper = new DataHelper(context);
     }
 
-    public static TagsRepository getInstance(Context context) {
+    public static DataRepository getInstance(Context context) {
         if (INSTANCE == null) {
-            INSTANCE = new TagsRepository(context);
+            INSTANCE = new DataRepository(context);
         }
 
         return INSTANCE;
     }
 
     @Override
-    public void getImagesByTags(String tag, final ImagesDataSource.LoadImagesCallBack callBack) {
-        getTag(tag, new LoadTagCallback() {
+    public void getAllImages(LoadAllData<Images> callBack) {
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        String[] projections = {
+                ImagesEntry._ID,
+                ImagesEntry.COLUMN_IMAGE
+        };
+
+        List<Images> images = new ArrayList<>();
+
+        Cursor c = db.query(ImagesEntry.TABLE_NAME, projections, null, null, null, null, null);
+        while (c.moveToNext()) {
+            int savedId = c.getInt(c.getColumnIndexOrThrow(ImagesEntry._ID));
+            String imageUrl = c.getString(c.getColumnIndexOrThrow(ImagesEntry.COLUMN_IMAGE));
+
+            images.add(new Images(savedId, imageUrl));
+        }
+
+        c.close();
+        db.close();
+
+        if (images.isEmpty()) {
+            callBack.onDataNotAvailable();
+        } else {
+            callBack.onLoadAllData(images);
+        }
+    }
+
+    @Override
+    public void getImagesByTag(String tag, final LoadAllData<Images> callBack) {
+        getTag(tag, new LoadData<Tags>() {
             @Override
-            public void dataAvailable(Tags tag) {
+            public void onLoadData(Tags tag) {
                 SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
                 String[] projection = {
@@ -57,10 +85,10 @@ public class TagsRepository implements TagsDataSource {
                 if (c != null && c.getCount() > 0) {
                     while (c.moveToNext()) {
                         int imageId = c.getInt(c.getColumnIndexOrThrow(MapImagesTagsEntry.COLUMN_IMAGE_ID));
-                        getImagesById(imageId, new ImagesDataSource.LoadImageCallback() {
+                        getImageById(imageId, new LoadData<Images>() {
                             @Override
-                            public void onLoadImage(Images image) {
-                                images.add(image);
+                            public void onLoadData(Images data) {
+                                images.add(data);
                             }
 
                             @Override
@@ -77,19 +105,19 @@ public class TagsRepository implements TagsDataSource {
                 if (images.isEmpty()) {
                     callBack.onDataNotAvailable();
                 } else {
-                    callBack.onLoadImages(images);
+                    callBack.onLoadAllData(images);
                 }
             }
 
             @Override
-            public void dataNotAvailable() {
+            public void onDataNotAvailable() {
                 callBack.onDataNotAvailable();
             }
         });
     }
 
     @Override
-    public void getImagesById(int id, ImagesDataSource.LoadImageCallback callback) {
+    public void getImageById(int id, LoadData<Images> callback) {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projections = {
@@ -116,25 +144,25 @@ public class TagsRepository implements TagsDataSource {
         db.close();
 
         if (savedImage != null) {
-            callback.onLoadImage(savedImage);
+            callback.onLoadData(savedImage);
         } else {
             callback.onDataNotAvailable();
         }
     }
 
     @Override
-    public void addTag(final String tag, final LoadTagCallback callback) {
+    public void addTag(final String tag, final LoadData<Tags> callback) {
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
-        getTag(tag, new LoadTagCallback() {
+        getTag(tag, new LoadData<Tags>() {
 
             @Override
-            public void dataAvailable(Tags tag) {
-                callback.dataAvailable(tag);
+            public void onLoadData(Tags tag) {
+                callback.onLoadData(tag);
             }
 
             @Override
-            public void dataNotAvailable() {
+            public void onDataNotAvailable() {
                 ContentValues values = new ContentValues();
                 values.put(TagsEntry.COLUMN_TAG_NAME, tag);
 
@@ -142,13 +170,13 @@ public class TagsRepository implements TagsDataSource {
 
                 db.close();
 
-                callback.dataAvailable(new Tags((int)insertid, tag));
+                callback.onLoadData(new Tags((int)insertid, tag));
             }
         });
     }
 
     @Override
-    public void getTag(String tag, LoadTagCallback callback) {
+    public void getTag(String tag, LoadData<Tags> callback) {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projections = {
@@ -175,17 +203,17 @@ public class TagsRepository implements TagsDataSource {
         db.close();
 
         if (savedTag != null) {
-            callback.dataAvailable(savedTag);
+            callback.onLoadData(savedTag);
         } else {
-            callback.dataNotAvailable();
+            callback.onDataNotAvailable();
         }
     }
 
     @Override
     public void addTagsToImage(String tag, final List<Images> images) {
-        addTag(tag, new LoadTagCallback() {
+        addTag(tag, new LoadData<Tags>() {
             @Override
-            public void dataAvailable(Tags tag) {
+            public void onLoadData(Tags tag) {
                 SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
                 for (Images image : images) {
@@ -200,9 +228,63 @@ public class TagsRepository implements TagsDataSource {
             }
 
             @Override
-            public void dataNotAvailable() {
+            public void onDataNotAvailable() {
                 // It'll not called while adding
             }
         });
+    }
+
+    @Override
+    public void addMessage(Messages message) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(MessagesEntry.COLUMN_MESSAGE, message.getMessage());
+        values.put(MessagesEntry.COLUMN_MESSAGE_TYPE, message.getType());
+        values.put(MessagesEntry.COLUMN_BY, message.getBy());
+        values.put(MessagesEntry.COLUMN_SENT_TIME, message.getSentTime());
+
+        db.insert(MessagesEntry.TABLE_NAME, null, values);
+        db.close();
+    }
+
+    @Override
+    public void getAllMessages(LoadAllData<Messages> callBack) {
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        String[] projection = {
+                MessagesEntry._ID,
+                MessagesEntry.COLUMN_MESSAGE,
+                MessagesEntry.COLUMN_MESSAGE_TYPE,
+                MessagesEntry.COLUMN_BY,
+                MessagesEntry.COLUMN_SENT_TIME
+        };
+
+        Cursor c = db.query(MessagesEntry.TABLE_NAME, projection, null, null, null, null, null);
+        List<Messages> messages = new ArrayList<>();
+
+        while (c.moveToNext()) {
+            int id = c.getInt(c.getColumnIndexOrThrow(MessagesEntry._ID));
+            String message = c.getString(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_MESSAGE));
+            String messageType = c.getString(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_MESSAGE_TYPE));
+            String by = c.getString(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_BY));
+            long sentTime = c.getLong(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_SENT_TIME));
+
+            messages.add(new Messages(id, message, messageType, by, sentTime));
+        }
+
+        c.close();
+        db.close();
+
+        if (messages.isEmpty()) {
+            callBack.onDataNotAvailable();
+        } else {
+            callBack.onLoadAllData(messages);
+        }
+    }
+
+    @Override
+    public void deleteAllMessages() {
+
     }
 }

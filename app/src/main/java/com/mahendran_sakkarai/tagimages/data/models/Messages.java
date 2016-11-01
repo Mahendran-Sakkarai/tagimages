@@ -1,4 +1,6 @@
-package com.mahendran_sakkarai.tagimages.data.messages;
+package com.mahendran_sakkarai.tagimages.data.models;
+
+import android.text.Editable;
 
 /**
  * Created by Mahendran Sakkarai on 10/28/2016.
@@ -9,7 +11,22 @@ public class Messages {
     private String type;
     private String message;
     private String by;
-    private int sentTime;
+    private long sentTime;
+
+    public Messages(int id, String message, String messageType, String by, long sentTime) {
+        this.id = id;
+        this.message = message;
+        this.type = messageType;
+        this.by = by;
+        this.sentTime = sentTime;
+    }
+
+    public Messages(String message, String messageType, String by, long timeInMillis) {
+        this.message = message;
+        this.type = messageType;
+        this.by = by;
+        this.sentTime = timeInMillis;
+    }
 
     public int getId() {
         return id;
@@ -43,11 +60,11 @@ public class Messages {
         this.by = by;
     }
 
-    public int getSentTime() {
+    public long getSentTime() {
         return sentTime;
     }
 
-    public void setSentTime(int sentTime) {
+    public void setSentTime(long sentTime) {
         this.sentTime = sentTime;
     }
 }
