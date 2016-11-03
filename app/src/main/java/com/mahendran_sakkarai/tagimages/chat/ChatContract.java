@@ -2,6 +2,9 @@ package com.mahendran_sakkarai.tagimages.chat;
 
 import com.mahendran_sakkarai.tagimages.BasePresenter;
 import com.mahendran_sakkarai.tagimages.BaseView;
+import com.mahendran_sakkarai.tagimages.data.DataRepository;
+import com.mahendran_sakkarai.tagimages.data.DataSource;
+import com.mahendran_sakkarai.tagimages.data.models.Images;
 import com.mahendran_sakkarai.tagimages.data.models.Messages;
 
 import java.util.List;
@@ -19,5 +22,11 @@ public interface ChatContract {
 
     interface Presenter extends BasePresenter {
         void saveMessage(Messages message);
+
+        void getImageById(int imageId, DataSource.LoadData<Images> loadData);
+
+        void listAllImages();
+
+        void notAccepted();
     }
 }

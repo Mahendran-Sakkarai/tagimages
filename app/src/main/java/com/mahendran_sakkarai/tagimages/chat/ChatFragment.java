@@ -2,6 +2,7 @@ package com.mahendran_sakkarai.tagimages.chat;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -41,12 +42,28 @@ public class ChatFragment extends Fragment implements ChatContract.View {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.messages_list);
-        recyclerView.setHasFixedSize(true);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setHasFixedSize(false);
+        mChatAdapter = new ChatAdapter(mPresenter);
+
+        final GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
+        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                switch (mChatAdapter.getItemViewType(position)) {
+                    case ChatAdapter.IMAGE:
+                        return 1;
+                    case ChatAdapter.BOT_MESSAGE:
+                        return layoutManager.getSpanCount();
+                    case ChatAdapter.USER_MESSAGE:
+                        return layoutManager.getSpanCount();
+                    default:
+                        return -1;
+                }
+            }
+        });
         layoutManager.setReverseLayout(true);
-        layoutManager.setStackFromEnd(true);
+        //layoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(layoutManager);
-        mChatAdapter = new ChatAdapter();
         recyclerView.setAdapter(mChatAdapter);
 
         final EditText messageBox = (EditText) view.findViewById(R.id.message_box);
@@ -56,7 +73,11 @@ public class ChatFragment extends Fragment implements ChatContract.View {
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     // To handle clicking send message button in message editor
                     if (motionEvent.getRawX() >= (messageBox.getRight() - messageBox.getCompoundDrawables()[2].getBounds().width())) {
-                        mPresenter.saveMessage(new Messages(messageBox.getText().toString(), "text", DataContract.MessagesEntry.BY_USER, Calendar.getInstance().getTimeInMillis()));
+                        if (messageBox.getText().toString().length() > 0) {
+                            mPresenter.saveMessage(new Messages(messageBox.getText().toString(), DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_USER, Calendar.getInstance().getTimeInMillis()));
+                            checkAndReply(messageBox.getText().toString());
+                            messageBox.setText("");
+                        }
                         return true;
                     }
                 }
@@ -65,6 +86,17 @@ public class ChatFragment extends Fragment implements ChatContract.View {
         });
 
         return view;
+    }
+
+    private void checkAndReply(String message) {
+        switch (message.toLowerCase()){
+            case "list all images":
+                mPresenter.listAllImages();
+                break;
+            default:
+                mPresenter.notAccepted();
+                break;
+        }
     }
 
     @Override

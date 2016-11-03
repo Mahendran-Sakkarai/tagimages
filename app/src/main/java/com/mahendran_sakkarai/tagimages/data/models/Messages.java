@@ -10,12 +10,16 @@ public class Messages {
     private int id;
     private String type;
     private String message;
+    private int imageId;
+    private boolean active;
     private String by;
     private long sentTime;
 
-    public Messages(int id, String message, String messageType, String by, long sentTime) {
+    public Messages(int id, String message, int imageId, boolean active, String messageType, String by, long sentTime) {
         this.id = id;
         this.message = message;
+        this.imageId = imageId;
+        this.active = active;
         this.type = messageType;
         this.by = by;
         this.sentTime = sentTime;
@@ -26,6 +30,14 @@ public class Messages {
         this.type = messageType;
         this.by = by;
         this.sentTime = timeInMillis;
+    }
+
+    public Messages(int imageId, boolean active, String messageType, String by, long sentTime) {
+        this.imageId = imageId;
+        this.active = active;
+        this.type = messageType;
+        this.by = by;
+        this.sentTime = sentTime;
     }
 
     public int getId() {
@@ -50,6 +62,22 @@ public class Messages {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public int getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(int imageId) {
+        this.imageId = imageId;
     }
 
     public String getBy() {

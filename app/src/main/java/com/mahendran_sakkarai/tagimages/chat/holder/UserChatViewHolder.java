@@ -1,7 +1,9 @@
-package com.mahendran_sakkarai.tagimages.chat;
+package com.mahendran_sakkarai.tagimages.chat.holder;
 
+import android.content.Context;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -20,21 +22,28 @@ import java.util.Calendar;
 
 public class UserChatViewHolder extends RecyclerView.ViewHolder {
     private final LinearLayout mMessageContainer;
+    private final Context mContext;
+    private final TextView mChatTime;
+    private final TextView mChatContentView;
     private View mView;
 
-    public UserChatViewHolder(View itemView) {
+    public UserChatViewHolder(View itemView, Context context) {
         super(itemView);
         this.mView = itemView;
-        mMessageContainer = (LinearLayout) itemView.findViewById(R.id.message_box);
+        this.mContext = context;
+        mMessageContainer = (LinearLayout) mView.findViewById(R.id.message_box);
+        View view = LayoutInflater.from(mView.getContext()).inflate(R.layout.chat_content, (ViewGroup) mView, false);
+        mChatContentView = (TextView) view.findViewById(R.id.message);
+        mChatTime = (TextView) view.findViewById(R.id.timing);
+        mMessageContainer.addView(view);
     }
 
     public void bindData(Messages message) {
-        TextView tv = new TextView(mView.getContext());
-        tv.setLayoutParams(new LinearLayoutCompat.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         DateFormat formatter = new SimpleDateFormat("hh:mm:ss");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(message.getSentTime());
-        tv.setText(""+formatter.format(calendar.getTime()));
-        mMessageContainer.addView(tv);
+        mChatTime.setText(""+formatter.format(calendar.getTime()));
+
+        mChatContentView.setText(message.getMessage());
     }
 }

@@ -35,6 +35,18 @@ public class DataRepository implements DataSource {
     }
 
     @Override
+    public void addImage(Images images) {
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(ImagesEntry.COLUMN_IMAGE, images.getImageUrl());
+
+        database.insert(ImagesEntry.TABLE_NAME, null, cv);
+
+        database.close();
+    }
+
+    @Override
     public void getAllImages(LoadAllData<Images> callBack) {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
@@ -137,7 +149,7 @@ public class DataRepository implements DataSource {
             int savedId = c.getInt(c.getColumnIndexOrThrow(ImagesEntry._ID));
             String imageUrl = c.getString(c.getColumnIndexOrThrow(ImagesEntry.COLUMN_IMAGE));
 
-            savedImage = new Images(id, imageUrl);
+            savedImage = new Images(savedId, imageUrl);
             c.close();
         }
 
@@ -240,6 +252,9 @@ public class DataRepository implements DataSource {
 
         ContentValues values = new ContentValues();
         values.put(MessagesEntry.COLUMN_MESSAGE, message.getMessage());
+        values.put(MessagesEntry.COLUMN_IMAGE_ID, message.getImageId());
+        values.put(MessagesEntry.COLUMN_ACTIVE, message.isActive()? 1 : 0);
+        values.put(MessagesEntry.COLUMN_MESSAGE, message.getMessage());
         values.put(MessagesEntry.COLUMN_MESSAGE_TYPE, message.getType());
         values.put(MessagesEntry.COLUMN_BY, message.getBy());
         values.put(MessagesEntry.COLUMN_SENT_TIME, message.getSentTime());
@@ -255,6 +270,8 @@ public class DataRepository implements DataSource {
         String[] projection = {
                 MessagesEntry._ID,
                 MessagesEntry.COLUMN_MESSAGE,
+                MessagesEntry.COLUMN_IMAGE_ID,
+                MessagesEntry.COLUMN_ACTIVE,
                 MessagesEntry.COLUMN_MESSAGE_TYPE,
                 MessagesEntry.COLUMN_BY,
                 MessagesEntry.COLUMN_SENT_TIME
@@ -266,11 +283,13 @@ public class DataRepository implements DataSource {
         while (c.moveToNext()) {
             int id = c.getInt(c.getColumnIndexOrThrow(MessagesEntry._ID));
             String message = c.getString(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_MESSAGE));
+            int imageId = c.getInt(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_IMAGE_ID));
+            int active = c.getInt(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_ACTIVE));
             String messageType = c.getString(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_MESSAGE_TYPE));
             String by = c.getString(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_BY));
             long sentTime = c.getLong(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_SENT_TIME));
 
-            messages.add(new Messages(id, message, messageType, by, sentTime));
+            messages.add(new Messages(id, message, imageId, active==1?true:false, messageType, by, sentTime));
         }
 
         c.close();

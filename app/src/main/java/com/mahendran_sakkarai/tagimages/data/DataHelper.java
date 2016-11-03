@@ -20,6 +20,8 @@ public class DataHelper extends SQLiteOpenHelper {
                     " PRIMARY KEY AUTOINCREMENT NOT NULL"+ COMMA_SEP +
                     DataContract.MessagesEntry.COLUMN_MESSAGE_TYPE + TEXT_TYPE + COMMA_SEP +
                     DataContract.MessagesEntry.COLUMN_MESSAGE + TEXT_TYPE + COMMA_SEP +
+                    DataContract.MessagesEntry.COLUMN_IMAGE_ID + INTEGER_TYPE + COMMA_SEP +
+                    DataContract.MessagesEntry.COLUMN_ACTIVE + INTEGER_TYPE + COMMA_SEP +
                     DataContract.MessagesEntry.COLUMN_BY + TEXT_TYPE + COMMA_SEP +
                     DataContract.MessagesEntry.COLUMN_SENT_TIME + INTEGER_TYPE +
                     " )";

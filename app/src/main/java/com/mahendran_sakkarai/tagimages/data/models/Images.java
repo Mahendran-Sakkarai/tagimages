@@ -13,6 +13,10 @@ public class Images {
         this.imageUrl = imageUrl;
     }
 
+    public Images(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public int getId() {
         return id;
     }

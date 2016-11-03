@@ -1,11 +1,17 @@
 package com.mahendran_sakkarai.tagimages.chat;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 
+import com.mahendran_sakkarai.tagimages.data.DataContract;
 import com.mahendran_sakkarai.tagimages.data.DataRepository;
 import com.mahendran_sakkarai.tagimages.data.DataSource;
+import com.mahendran_sakkarai.tagimages.data.models.Images;
 import com.mahendran_sakkarai.tagimages.data.models.Messages;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -13,12 +19,15 @@ import java.util.List;
  */
 
 public class ChatPresenter implements ChatContract.Presenter {
+    private static final String IMAGES_SAVED = "IMAGES_SAVED";
     private final Context mContext;
     private final ChatContract.View mChatView;
     private final DataRepository mDataRepository;
+    private Activity mActivity;
 
     public ChatPresenter(Context context, ChatContract.View chatView) {
         this.mContext = context;
+        this.mActivity = (Activity) context;
         this.mChatView = chatView;
         this.mDataRepository = DataRepository.getInstance(context);
 
@@ -27,6 +36,31 @@ public class ChatPresenter implements ChatContract.Presenter {
 
     @Override
     public void start() {
+        if (!isImagesSaved()){
+            List<Images> images = new ArrayList<>();
+            images.add(new Images("http://assets.barcroftmedia.com.s3-website-eu-west-1.amazonaws.com/assets/images/recent-images-11.jpg"));
+            images.add(new Images("http://www.freedigitalphotos.net/images/img/homepage/87357.jpg"));
+            images.add(new Images("https://s-media-cache-ak0.pinimg.com/736x/fa/30/19/fa3019fd25087c47d83a9b7d4e16d1ff.jpg"));
+            images.add(new Images("http://7606-presscdn-0-74.pagely.netdna-cdn.com/wp-content/uploads/2016/03/Dubai-Photos-Images-Oicture-Dubai-Landmarks-800x600.jpg"));
+            images.add(new Images("http://i164.photobucket.com/albums/u8/hemi1hemi/COLOR/COL9-6.jpg"));
+            images.add(new Images("http://www.gettyimages.pt/gi-resources/images/Homepage/Hero/PT/PT_hero_42_153645159.jpg"));
+            images.add(new Images("https://s-media-cache-ak0.pinimg.com/originals/62/4a/99/624a9995d11ee730839a9624ed982e81.jpg"));
+            images.add(new Images("https://static.pexels.com/photos/4825/red-love-romantic-flowers.jpg"));
+            images.add(new Images("http://plusquotes.com/images/quotes-img/flower-wallpaper-1..jpg"));
+            images.add(new Images("https://s-media-cache-ak0.pinimg.com/736x/67/35/cf/6735cf009fd6d0a12f35838aa2812692.jpg"));
+            for (Images image:images){
+                mDataRepository.addImage(image);
+            }
+
+            mDataRepository.addMessage(new Messages("Hi, I'm a bot to help you to tag images as per your request. You can ask me the below details! 1. List all images, 2. List --tag-- images", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+
+            setImageSaved();
+        }
+
+        updateMessageList();
+    }
+
+    private void updateMessageList() {
         mDataRepository.getAllMessages(new DataSource.LoadAllData<Messages>() {
             @Override
             public void onLoadAllData(List<Messages> dataList) {
@@ -44,5 +78,59 @@ public class ChatPresenter implements ChatContract.Presenter {
     public void saveMessage(Messages message) {
         mDataRepository.addMessage(message);
         start();
+    }
+
+    @Override
+    public void getImageById(int imageId, final DataSource.LoadData<Images> callback) {
+        mDataRepository.getImageById(imageId, new DataSource.LoadData<Images>() {
+            @Override
+            public void onLoadData(Images data) {
+                callback.onLoadData(data);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                callback.onDataNotAvailable();
+            }
+        });
+    }
+
+    @Override
+    public void listAllImages() {
+        mDataRepository.addMessage(new Messages("Select images from below to tag those into one set", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+
+        mDataRepository.getAllImages(new DataSource.LoadAllData<Images>() {
+            @Override
+            public void onLoadAllData(List<Images> dataList) {
+                for (Images image: dataList) {
+                    mDataRepository.addMessage(new Messages(image.getId(), false, DataContract.MessagesEntry.IMAGE_BY_BOT, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+                }
+                mDataRepository.addMessage(new Messages("Once selected images mention a tag using the message \"Tag as --tag name--\"", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+                updateMessageList();
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+
+            }
+        });
+    }
+
+    @Override
+    public void notAccepted() {
+        mDataRepository.addMessage(new Messages("Sorry, I'm restricted to accept only below keywords! 1. List all images, 2. List --tag-- images", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+        updateMessageList();
+    }
+
+    public void setImageSaved(){
+        SharedPreferences preference = mActivity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preference.edit();
+        editor.putBoolean(IMAGES_SAVED, true);
+        editor.apply();
+    }
+
+    public boolean isImagesSaved() {
+        SharedPreferences preferences = mActivity.getPreferences(Context.MODE_PRIVATE);
+        return preferences.getBoolean(IMAGES_SAVED, false);
     }
 }

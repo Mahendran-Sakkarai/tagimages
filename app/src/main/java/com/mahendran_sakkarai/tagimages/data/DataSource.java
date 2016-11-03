@@ -23,6 +23,8 @@ public interface DataSource {
         void onDataNotAvailable();
     }
 
+    void addImage(Images images);
+
     void getAllImages(LoadAllData<Images> callBack);
 
     void getImagesByTag(String tag, LoadAllData<Images> callBack);
