@@ -1,10 +1,15 @@
 # Tag Images
-<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" />
+<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" /><br/>
 A test project to tag images in chat environment.
 
 ### Features:
 1. Implemented using [MVP architecture](https://github.com/googlesamples/android-architecture)
 2. Used SQLite to store the data's.
+
+### Screenshots:
+<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/screenshots/1.png" />
+<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/screenshots/2.png" />
+<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/screenshots/3.png" />
 
 ### Libraries Used:
 1. [Picasso](http://square.github.io/picasso/)
