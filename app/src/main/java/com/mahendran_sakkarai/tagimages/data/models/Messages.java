@@ -13,6 +13,7 @@ public class Messages {
     private int imageId;
     private boolean active;
     private String by;
+    private boolean selectable;
     private long sentTime;
 
     public Messages(int id, String message, int imageId, boolean active, String messageType, String by, long sentTime) {
@@ -86,6 +87,14 @@ public class Messages {
 
     public void setBy(String by) {
         this.by = by;
+    }
+
+    public boolean isSelectable() {
+        return selectable;
+    }
+
+    public void setSelectable(boolean selectable) {
+        this.selectable = selectable;
     }
 
     public long getSentTime() {

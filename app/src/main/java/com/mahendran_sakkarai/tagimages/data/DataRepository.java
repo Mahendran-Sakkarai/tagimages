@@ -137,7 +137,7 @@ public class DataRepository implements DataSource {
                 ImagesEntry.COLUMN_IMAGE
         };
 
-        String selection = ImagesEntry._ID+ " = ? ";
+        String selection = ImagesEntry._ID + " = ? ";
         String[] selectionArg = {Integer.toString(id)};
 
         Cursor c = db.query(ImagesEntry.TABLE_NAME, projections, selection, selectionArg, null, null, null);
@@ -164,8 +164,6 @@ public class DataRepository implements DataSource {
 
     @Override
     public void addTag(final String tag, final LoadData<Tags> callback) {
-        final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
         getTag(tag, new LoadData<Tags>() {
 
             @Override
@@ -175,6 +173,8 @@ public class DataRepository implements DataSource {
 
             @Override
             public void onDataNotAvailable() {
+                final SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
                 ContentValues values = new ContentValues();
                 values.put(TagsEntry.COLUMN_TAG_NAME, tag);
 
@@ -182,7 +182,7 @@ public class DataRepository implements DataSource {
 
                 db.close();
 
-                callback.onLoadData(new Tags((int)insertid, tag));
+                callback.onLoadData(new Tags((int) insertid, tag));
             }
         });
     }
@@ -253,10 +253,11 @@ public class DataRepository implements DataSource {
         ContentValues values = new ContentValues();
         values.put(MessagesEntry.COLUMN_MESSAGE, message.getMessage());
         values.put(MessagesEntry.COLUMN_IMAGE_ID, message.getImageId());
-        values.put(MessagesEntry.COLUMN_ACTIVE, message.isActive()? 1 : 0);
+        values.put(MessagesEntry.COLUMN_ACTIVE, message.isActive() ? 1 : 0);
         values.put(MessagesEntry.COLUMN_MESSAGE, message.getMessage());
         values.put(MessagesEntry.COLUMN_MESSAGE_TYPE, message.getType());
         values.put(MessagesEntry.COLUMN_BY, message.getBy());
+        values.put(MessagesEntry.COLUMN_SELECTABLE, message.isSelectable());
         values.put(MessagesEntry.COLUMN_SENT_TIME, message.getSentTime());
 
         db.insert(MessagesEntry.TABLE_NAME, null, values);
@@ -274,6 +275,7 @@ public class DataRepository implements DataSource {
                 MessagesEntry.COLUMN_ACTIVE,
                 MessagesEntry.COLUMN_MESSAGE_TYPE,
                 MessagesEntry.COLUMN_BY,
+                MessagesEntry.COLUMN_SELECTABLE,
                 MessagesEntry.COLUMN_SENT_TIME
         };
 
@@ -287,9 +289,13 @@ public class DataRepository implements DataSource {
             int active = c.getInt(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_ACTIVE));
             String messageType = c.getString(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_MESSAGE_TYPE));
             String by = c.getString(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_BY));
+            int selectable = c.getInt(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_SELECTABLE));
             long sentTime = c.getLong(c.getColumnIndexOrThrow(MessagesEntry.COLUMN_SENT_TIME));
 
-            messages.add(new Messages(id, message, imageId, active==1?true:false, messageType, by, sentTime));
+            Messages messageToAdd = new Messages(id, message, imageId, active == 1, messageType, by, sentTime);
+            messageToAdd.setSelectable(selectable == 1);
+
+            messages.add(messageToAdd);
         }
 
         c.close();
@@ -300,6 +306,65 @@ public class DataRepository implements DataSource {
         } else {
             callBack.onLoadAllData(messages);
         }
+    }
+
+    @Override
+    public void getSelectedImages(final LoadAllData<Images> callback) {
+        getAllMessages(new LoadAllData<Messages>() {
+            @Override
+            public void onLoadAllData(List<Messages> messages) {
+                final List<Images> images = new ArrayList<Images>();
+                for (Messages message : messages) {
+                    if (message.isActive() && message.isSelectable()) {
+                        getImageById(message.getImageId(), new LoadData<Images>() {
+                            @Override
+                            public void onLoadData(Images data) {
+                                images.add(data);
+                            }
+
+                            @Override
+                            public void onDataNotAvailable() {
+                                // Nothing to do
+                            }
+                        });
+                    }
+                }
+
+                if (images.isEmpty())
+                    callback.onDataNotAvailable();
+                else
+                    callback.onLoadAllData(images);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                callback.onDataNotAvailable();
+            }
+        });
+    }
+
+    @Override
+    public void updateMessageSelectable(int id, boolean selectable) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(MessagesEntry.COLUMN_SELECTABLE, selectable);
+
+        db.update(MessagesEntry.TABLE_NAME, cv, MessagesEntry._ID + "= ?", new String[]{Integer.toString(id)});
+
+        db.close();
+    }
+
+    @Override
+    public void updateMessageActiveStatus(int id, boolean active) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(MessagesEntry.COLUMN_ACTIVE, active);
+
+        db.update(MessagesEntry.TABLE_NAME, cv, MessagesEntry._ID + "= ?", new String[]{Integer.toString(id)});
+
+        db.close();
     }
 
     @Override

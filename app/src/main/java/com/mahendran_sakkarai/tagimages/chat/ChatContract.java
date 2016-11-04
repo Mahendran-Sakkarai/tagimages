@@ -28,5 +28,9 @@ public interface ChatContract {
         void listAllImages();
 
         void notAccepted();
+
+        void updateActive(int id, boolean active);
+
+        void tagImages(String tag);
     }
 }

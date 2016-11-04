@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.mahendran_sakkarai.tagimages.R;
 import com.mahendran_sakkarai.tagimages.chat.ChatContract;
@@ -21,6 +22,8 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
     private final Context mContext;
     private final ImageView mImageView;
     private final ChatContract.Presenter mPresenter;
+    private final ImageView mSelectableView;
+    private final RelativeLayout mImageLayout;
 
     public ImageViewHolder(View view, Context context, ChatContract.Presenter presenter) {
         super(view);
@@ -28,10 +31,12 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
         this.mContext = context;
         this.mPresenter = presenter;
 
+        mImageLayout = (RelativeLayout) mItemView.findViewById(R.id.image_view);
         mImageView = (ImageView) mItemView.findViewById(R.id.image);
+        mSelectableView = (ImageView) mItemView.findViewById(R.id.selected);
     }
 
-    public void bindData(Messages message){
+    public void bindData(final Messages message){
         mPresenter.getImageById(message.getImageId(), new DataSource.LoadData<Images>() {
             @Override
             public void onLoadData(Images data) {
@@ -39,12 +44,28 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
                         .load(data.getImageUrl())
                         .resize(150, 150)
                         .centerCrop()
+                        .placeholder(R.drawable.ic_file_download_black_24dp)
                         .into(mImageView);
             }
 
             @Override
             public void onDataNotAvailable() {
 
+            }
+        });
+
+        if (message.isActive()) {
+            mSelectableView.setVisibility(View.VISIBLE);
+        } else {
+            mSelectableView.setVisibility(View.GONE);
+        }
+
+        mImageLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (message.isSelectable()) {
+                    mPresenter.updateActive(message.getId(), !message.isActive());
+                }
             }
         });
     }

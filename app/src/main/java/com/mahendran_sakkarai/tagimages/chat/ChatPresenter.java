@@ -99,14 +99,34 @@ public class ChatPresenter implements ChatContract.Presenter {
     public void listAllImages() {
         mDataRepository.addMessage(new Messages("Select images from below to tag those into one set", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
 
+        disableSelectableStatus();
+
         mDataRepository.getAllImages(new DataSource.LoadAllData<Images>() {
             @Override
             public void onLoadAllData(List<Images> dataList) {
                 for (Images image: dataList) {
-                    mDataRepository.addMessage(new Messages(image.getId(), false, DataContract.MessagesEntry.IMAGE_BY_BOT, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+                    Messages messageToAdd = new Messages(image.getId(), false, DataContract.MessagesEntry.IMAGE_BY_BOT, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis());
+                    messageToAdd.setSelectable(true);
+                    mDataRepository.addMessage(messageToAdd);
                 }
                 mDataRepository.addMessage(new Messages("Once selected images mention a tag using the message \"Tag as --tag name--\"", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
                 updateMessageList();
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+
+            }
+        });
+    }
+
+    private void disableSelectableStatus() {
+        mDataRepository.getAllMessages(new DataSource.LoadAllData<Messages>() {
+            @Override
+            public void onLoadAllData(List<Messages> dataList) {
+                for (Messages message:dataList) {
+                    mDataRepository.updateMessageSelectable(message.getId(), false);
+                }
             }
 
             @Override
@@ -120,6 +140,36 @@ public class ChatPresenter implements ChatContract.Presenter {
     public void notAccepted() {
         mDataRepository.addMessage(new Messages("Sorry, I'm restricted to accept only below keywords! 1. List all images, 2. List --tag-- images", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
         updateMessageList();
+    }
+
+    @Override
+    public void updateActive(int id, boolean active) {
+        mDataRepository.updateMessageActiveStatus(id, active);
+        updateMessageList();
+    }
+
+    @Override
+    public void tagImages(final String tag) {
+        if (tag.length() > 0) {
+            mDataRepository.getSelectedImages(new DataSource.LoadAllData<Images>() {
+                @Override
+                public void onLoadAllData(List<Images> images) {
+                    mDataRepository.addTagsToImage(tag, images);
+                    mDataRepository.addMessage(new Messages("Selected images are tagged successfully", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+                    disableSelectableStatus();
+                    updateMessageList();
+                }
+
+                @Override
+                public void onDataNotAvailable() {
+                    mDataRepository.addMessage(new Messages("No images selected! Select any images from the above list", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+                    updateMessageList();
+                }
+            });
+        } else {
+            mDataRepository.addMessage(new Messages("Invalid tag! Please mention a valid tag using \"--tag-name--\"", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+            updateMessageList();
+        }
     }
 
     public void setImageSaved(){

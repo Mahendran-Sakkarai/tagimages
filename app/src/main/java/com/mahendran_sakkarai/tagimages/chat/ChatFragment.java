@@ -89,13 +89,13 @@ public class ChatFragment extends Fragment implements ChatContract.View {
     }
 
     private void checkAndReply(String message) {
-        switch (message.toLowerCase()){
-            case "list all images":
-                mPresenter.listAllImages();
-                break;
-            default:
-                mPresenter.notAccepted();
-                break;
+        if (message.toLowerCase().equals("list all images")) {
+            mPresenter.listAllImages();
+        } else if (message.toLowerCase().contains("tag as")){
+            String tag = message.substring(message.toLowerCase().indexOf("tag as") + 7);
+            mPresenter.tagImages(tag);
+        } else {
+            mPresenter.notAccepted();
         }
     }
 

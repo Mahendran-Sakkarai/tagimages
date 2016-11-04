@@ -21,6 +21,7 @@ public final class DataContract {
         public static final String COLUMN_IMAGE_ID = "image_id";
         public static final String COLUMN_ACTIVE = "active";
         public static final String COLUMN_BY = "by";
+        public static final String COLUMN_SELECTABLE = "selectable";
         public static final String COLUMN_SENT_TIME = "sent_time";
 
         public static final String BY_BOT = "BY_BOT";

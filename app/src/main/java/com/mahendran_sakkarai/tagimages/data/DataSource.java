@@ -41,5 +41,11 @@ public interface DataSource {
 
     void getAllMessages(LoadAllData<Messages> callBack);
 
+    void getSelectedImages(LoadAllData<Images> loadAllData);
+
+    void updateMessageSelectable(int id, boolean selectable);
+
+    void updateMessageActiveStatus(int id, boolean active);
+
     void deleteAllMessages();
 }

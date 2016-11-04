@@ -23,6 +23,7 @@ public class DataHelper extends SQLiteOpenHelper {
                     DataContract.MessagesEntry.COLUMN_IMAGE_ID + INTEGER_TYPE + COMMA_SEP +
                     DataContract.MessagesEntry.COLUMN_ACTIVE + INTEGER_TYPE + COMMA_SEP +
                     DataContract.MessagesEntry.COLUMN_BY + TEXT_TYPE + COMMA_SEP +
+                    DataContract.MessagesEntry.COLUMN_SELECTABLE + INTEGER_TYPE + COMMA_SEP +
                     DataContract.MessagesEntry.COLUMN_SENT_TIME + INTEGER_TYPE +
                     " )";
     private static final String SQL_CREATE_TAGS =
