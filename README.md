@@ -7,9 +7,9 @@ A test project to tag images in chat environment.
 2. Used SQLite to store the data's.
 
 ### Screenshots:
-<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/screenshots/1.png" />
-<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/screenshots/2.png" />
-<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/screenshots/3.png" />
+<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/screenshots/1.png" style="width:150px;height:auto"/>
+<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/screenshots/2.png" style="width:150px;height:auto"/>
+<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/screenshots/3.png" style="width:150px;height:auto"/>
 
 ### Libraries Used:
 1. [Picasso](http://square.github.io/picasso/)
