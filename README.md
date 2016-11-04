@@ -1,4 +1,5 @@
 # Tag Images
+<img src="https://raw.githubusercontent.com/Mahendran-Sakkarai/tagimages/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" />
 A test project to tag images in chat environment.
 
 ### Features:
@@ -23,16 +24,19 @@ selectable - To enable the user to select the image
 sent_time - To store the message time
 ```
 ##### 2. Images
+Fields:
 ```
 id - Integer, Auto increment, Primary key
 images - To store the image url
 ```
 ##### 3. Tags
+Fields:
 ```
 id - Integer, Auto increment, Primary key
 name - To store the tag name
 ```
 ##### 4. MapImagesToTag
+Fields:
 ```
 id - Integer, Auto increment, Primary key
 tag_id - Foreign key from tags table
