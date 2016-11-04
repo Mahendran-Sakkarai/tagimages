@@ -6,4 +6,6 @@
     <color name="Gray">#999999</color>
     <color name="bot_background">#d1ecc9</color>
     <color name="user_background">#dca8e4</color>
+    <color name="logo_color">#F50057</color>
+    <color name="welcome_color">#1565C0</color>
 </resources>

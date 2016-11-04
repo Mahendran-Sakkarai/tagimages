@@ -15,7 +15,7 @@ import com.mahendran_sakkarai.tagimages.data.models.Messages;
 import com.squareup.picasso.Picasso;
 
 /**
- * Created by Nandakumar on 11/3/2016.
+ * Created by Mahendran Sakkarai on 11/3/2016.
  */
 public class ImageViewHolder extends RecyclerView.ViewHolder {
     private final View mItemView;
