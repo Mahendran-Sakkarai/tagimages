@@ -43,7 +43,7 @@ public class ChatPresenter implements ChatContract.Presenter {
             images.add(new Images("http://www.freedigitalphotos.net/images/img/homepage/87357.jpg"));
             images.add(new Images("https://s-media-cache-ak0.pinimg.com/736x/fa/30/19/fa3019fd25087c47d83a9b7d4e16d1ff.jpg"));
             images.add(new Images("http://7606-presscdn-0-74.pagely.netdna-cdn.com/wp-content/uploads/2016/03/Dubai-Photos-Images-Oicture-Dubai-Landmarks-800x600.jpg"));
-            images.add(new Images("http://i164.photobucket.com/albums/u8/hemi1hemi/COLOR/COL9-6.jpg"));
+            images.add(new Images("http://www.drodd.com/images15/nature30.jpg"));
             images.add(new Images("http://www.gettyimages.pt/gi-resources/images/Homepage/Hero/PT/PT_hero_42_153645159.jpg"));
             images.add(new Images("https://s-media-cache-ak0.pinimg.com/originals/62/4a/99/624a9995d11ee730839a9624ed982e81.jpg"));
             images.add(new Images("https://static.pexels.com/photos/4825/red-love-romantic-flowers.jpg"));
@@ -53,7 +53,7 @@ public class ChatPresenter implements ChatContract.Presenter {
                 mDataRepository.addImage(image);
             }
 
-            mDataRepository.addMessage(new Messages("Hi, I'm a bot to help you to tag images as per your request. You can ask me the below details! 1. List all images, 2. List --tag-- images", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+            mDataRepository.addMessage(new Messages("Hi, I'm a bot to help you to tag images as per your request. You can ask me the below details! 1. List all images, 2. List --tag-- images, 3. List all tags", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
 
             setImageSaved();
         }

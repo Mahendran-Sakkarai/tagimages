@@ -4,5 +4,6 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="Gray">#999999</color>
-    <color name="bot_background">#cfcfcf</color>
+    <color name="bot_background">#d1ecc9</color>
+    <color name="user_background">#dca8e4</color>
 </resources>
