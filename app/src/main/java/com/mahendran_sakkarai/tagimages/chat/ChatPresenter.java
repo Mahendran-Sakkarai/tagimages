@@ -9,6 +9,7 @@ import com.mahendran_sakkarai.tagimages.data.DataRepository;
 import com.mahendran_sakkarai.tagimages.data.DataSource;
 import com.mahendran_sakkarai.tagimages.data.models.Images;
 import com.mahendran_sakkarai.tagimages.data.models.Messages;
+import com.mahendran_sakkarai.tagimages.data.models.Tags;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -138,7 +139,7 @@ public class ChatPresenter implements ChatContract.Presenter {
 
     @Override
     public void notAccepted() {
-        mDataRepository.addMessage(new Messages("Sorry, I'm restricted to accept only below keywords! 1. List all images, 2. List --tag-- images", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+        mDataRepository.addMessage(new Messages("Sorry, I'm restricted to accept only below keywords! 1. List all images, 2. List --tag-- images, 3. List all tags", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
         updateMessageList();
     }
 
@@ -150,7 +151,7 @@ public class ChatPresenter implements ChatContract.Presenter {
 
     @Override
     public void tagImages(final String tag) {
-        if (tag.length() > 0) {
+        if (tag.length() > 0 && !tag.equals("all")) {
             mDataRepository.getSelectedImages(new DataSource.LoadAllData<Images>() {
                 @Override
                 public void onLoadAllData(List<Images> images) {
@@ -167,9 +168,70 @@ public class ChatPresenter implements ChatContract.Presenter {
                 }
             });
         } else {
-            mDataRepository.addMessage(new Messages("Invalid tag! Please mention a valid tag using \"--tag-name--\"", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
-            updateMessageList();
+           showInvalidTagMessage();
         }
+    }
+
+    private void showInvalidTagMessage() {
+        mDataRepository.addMessage(new Messages("Invalid tag! Please mention a valid tag using \"Tag as --tag-name--\"", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+        updateMessageList();
+    }
+
+    @Override
+    public void listTaggedImages(final String tagToList) {
+        if (tagToList.length() > 0) {
+            mDataRepository.getImagesByTag(tagToList, new DataSource.LoadAllData<Images>() {
+                @Override
+                public void onLoadAllData(List<Images> dataList) {
+                    mDataRepository.addMessage(new Messages("Images tagged under \""+tagToList + "\"", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+                    // Implemented some tweaks to list the images as like list.
+                    for (int i = 0; i < ((dataList.size() % 2 == 1) ? dataList.size() + 1 : dataList.size()); i++) {
+                        if (dataList.size() % 2 == 1 && i == dataList.size() - 1) {
+                            Messages messageToAdd = new Messages(-1, false, DataContract.MessagesEntry.IMAGE_BY_BOT, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis());
+                            messageToAdd.setSelectable(false);
+                            mDataRepository.addMessage(messageToAdd);
+                        } else {
+                            Images image = dataList.get((i > dataList.size() - 1 && dataList.size() % 2 == 1) ? i-1 : i);
+                            Messages messageToAdd = new Messages(image.getId(), false, DataContract.MessagesEntry.IMAGE_BY_BOT, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis());
+                            messageToAdd.setSelectable(false);
+                            mDataRepository.addMessage(messageToAdd);
+                        }
+                    }
+                    updateMessageList();
+                }
+
+                @Override
+                public void onDataNotAvailable() {
+                    showInvalidTagMessage();
+                }
+            });
+        } else {
+            showInvalidTagMessage();
+        }
+    }
+
+    @Override
+    public void listAllTags() {
+        mDataRepository.getAllTags(new DataSource.LoadAllData<Tags>() {
+            @Override
+            public void onLoadAllData(List<Tags> dataList) {
+                String tags = "";
+                int i = 1;
+                for (Tags tag: dataList) {
+                    tags += i+".\""+tag.getTag()+"\"";
+                    i++;
+                }
+                mDataRepository.addMessage(new Messages("Added tags "+tags, DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+                mDataRepository.addMessage(new Messages("You can list the images by requesting \"List --tag--name-- images\"", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+                updateMessageList();
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                mDataRepository.addMessage(new Messages("No images are tagged yet!!", DataContract.MessagesEntry.MESSAGE, DataContract.MessagesEntry.BY_BOT, Calendar.getInstance().getTimeInMillis()));
+                updateMessageList();
+            }
+        });
     }
 
     public void setImageSaved(){

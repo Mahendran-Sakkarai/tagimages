@@ -32,5 +32,9 @@ public interface ChatContract {
         void updateActive(int id, boolean active);
 
         void tagImages(String tag);
+
+        void listTaggedImages(String tagToList);
+
+        void listAllTags();
     }
 }

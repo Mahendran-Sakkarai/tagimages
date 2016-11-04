@@ -35,6 +35,8 @@ public interface DataSource {
 
     void getTag(String tag, LoadData<Tags> callback);
 
+    void getAllTags(LoadAllData<Tags> callback);
+
     void addTagsToImage(String tag, List<Images> images);
 
     void addMessage(Messages message);

@@ -196,7 +196,7 @@ public class DataRepository implements DataSource {
                 TagsEntry.COLUMN_TAG_NAME
         };
 
-        String selection = TagsEntry.COLUMN_TAG_NAME + " = ? ";
+        String selection = TagsEntry.COLUMN_TAG_NAME + " LIKE ? ";
         String[] selectionArg = {tag};
 
         Cursor c = db.query(TagsEntry.TABLE_NAME, projections, selection, selectionArg, null, null, null);
@@ -218,6 +218,35 @@ public class DataRepository implements DataSource {
             callback.onLoadData(savedTag);
         } else {
             callback.onDataNotAvailable();
+        }
+    }
+
+    @Override
+    public void getAllTags(LoadAllData<Tags> callback) {
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        String[] projections = {
+                TagsEntry._ID,
+                TagsEntry.COLUMN_TAG_NAME
+        };
+
+        List<Tags> tags = new ArrayList<>();
+
+        Cursor c = db.query(TagsEntry.TABLE_NAME, projections, null, null, null, null, null);
+        while (c.moveToNext()) {
+            int savedId = c.getInt(c.getColumnIndexOrThrow(TagsEntry._ID));
+            String imageUrl = c.getString(c.getColumnIndexOrThrow(TagsEntry.COLUMN_TAG_NAME));
+
+            tags.add(new Tags(savedId, imageUrl));
+        }
+
+        c.close();
+        db.close();
+
+        if (tags.isEmpty()) {
+            callback.onDataNotAvailable();
+        } else {
+            callback.onLoadAllData(tags);
         }
     }
 

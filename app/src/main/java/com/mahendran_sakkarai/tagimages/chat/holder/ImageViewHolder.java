@@ -40,17 +40,18 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
         mPresenter.getImageById(message.getImageId(), new DataSource.LoadData<Images>() {
             @Override
             public void onLoadData(Images data) {
+                mImageLayout.setVisibility(View.VISIBLE);
                 Picasso.with(mContext)
                         .load(data.getImageUrl())
                         .resize(150, 150)
                         .centerCrop()
-                        .placeholder(R.drawable.ic_file_download_black_24dp)
+                        .placeholder(R.drawable.progress_animation)
                         .into(mImageView);
             }
 
             @Override
             public void onDataNotAvailable() {
-
+                mImageLayout.setVisibility(View.GONE);
             }
         });
 

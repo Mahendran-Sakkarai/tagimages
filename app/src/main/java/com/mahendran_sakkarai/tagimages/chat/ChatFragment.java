@@ -17,6 +17,8 @@ import com.mahendran_sakkarai.tagimages.data.models.Messages;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatFragment extends Fragment implements ChatContract.View {
     private ChatContract.Presenter mPresenter;
@@ -89,11 +91,23 @@ public class ChatFragment extends Fragment implements ChatContract.View {
     }
 
     private void checkAndReply(String message) {
+        Pattern patternToCheckTag = Pattern.compile(Pattern.quote("list") + "(.*?)" + Pattern.quote("images"));
+        Matcher matcherForTagPattern = patternToCheckTag.matcher(message.toLowerCase());
+        boolean relatedToTag = false;
+        String tagToList = null;
+        while(matcherForTagPattern.find()) {
+            relatedToTag = true;
+            tagToList = matcherForTagPattern.group(1);
+        }
         if (message.toLowerCase().equals("list all images")) {
             mPresenter.listAllImages();
         } else if (message.toLowerCase().contains("tag as")){
             String tag = message.substring(message.toLowerCase().indexOf("tag as") + 7);
             mPresenter.tagImages(tag);
+        } else if (relatedToTag) {
+            mPresenter.listTaggedImages(tagToList.trim());
+        } else if (message.toLowerCase().equals("list all tags")) {
+            mPresenter.listAllTags();
         } else {
             mPresenter.notAccepted();
         }
